@@ -5,7 +5,7 @@ project(sonar_oculus_m750d
         VERSION 0.1
         DESCRIPTION "")
 find_package(Rock)
-find_package(Qt5 REQUIRED COMPONENTS Core Network Widgets)
+rock_find_qt5(REQUIRED COMPONENTS Core Network Widgets)
 
 set(CMAKE_AUTOMOC ON)
 

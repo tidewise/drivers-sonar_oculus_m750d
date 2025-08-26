@@ -7,6 +7,6 @@ rock_library(sonar_oculus_m750d
             Oculus/OsClientCtrl.h
             Oculus/DataWrapper.h
             Oculus/OssDataWrapper.h
-            Oculus/OsStatusRx.h)
+            Oculus/OsStatusRx.h
+    DEPS_TARGET Qt5::Core Qt5::Network Qt5::Widgets)
 
-target_link_libraries(sonar_oculus_m750d PRIVATE Qt5::Core Qt5::Network Qt5::Widgets)
