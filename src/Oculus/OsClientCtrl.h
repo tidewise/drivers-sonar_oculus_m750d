@@ -30,6 +30,8 @@
 #include "../Oculus/DataWrapper.h"
 #include "../Oculus/OssDataWrapper.h"
 
+#include "ImageAndRange.hpp"
+
 class QTcpSocket;
 
 
@@ -58,6 +60,7 @@ public:
   quint32                 m_rawSize;     // Size of the raw data record
 
   bool					  m_simple;
+  sonar_oculus_m750d::ImageAndRange getImageAndRange();
 };
 
 

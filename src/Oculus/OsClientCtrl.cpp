@@ -666,4 +666,29 @@ void OsClientCtrl::WriteUserConfig(uint32_t ipAddr, uint32_t ipMask, bool dhcpEn
 
 	}
 }
-
+// -----------------------------------------------------------------------------
+sonar_oculus_m750d::ImageAndRange OsBufferEntry::getImageAndRange()
+{
+  sonar_oculus_m750d::ImageAndRange image_and_range;
+  image_and_range.data = m_pImage;
+  if (m_simple)
+  {
+    if (m_version == 2)
+    {
+      image_and_range.width = m_rfm2.nBeams;
+      image_and_range.height = m_rfm2.nRanges;
+      image_and_range.range = image_and_range.height * m_rfm2.rangeResolution;
+    }
+    else{
+      image_and_range.width = m_rfm.nBeams;
+      image_and_range.height = m_rfm.nRanges;
+      image_and_range.range = image_and_range.height * m_rfm.rangeResolution;
+    }
+  }
+  else{
+      image_and_range.width = m_rff.ping.nBeams;
+      image_and_range.height = m_rff.ping_params.nRangeLinesBfm;
+      image_and_range.range = m_rff.ping.range;
+  }
+  return image_and_range;
+}
