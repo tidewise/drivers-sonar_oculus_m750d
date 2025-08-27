@@ -20,7 +20,6 @@
 #include "OsClientCtrl.h"
 
 #include <QTcpSocket>
-#include <QMessageBox>
 #include "Oculus.h"
 #include <QDateTime>
 #include <QElapsedTimer>
