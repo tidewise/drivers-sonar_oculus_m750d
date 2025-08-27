@@ -142,6 +142,7 @@ class OsClientCtrl : public QObject
 
 public:
   OsClientCtrl();
+  OsClientCtrl(std::string const& ip_addr, std::string const& net_mask);
   ~OsClientCtrl();
 
   bool Connect();

@@ -476,6 +476,20 @@ OsClientCtrl::OsClientCtrl()
   m_received = false;
 
 }
+// ============================================================================
+// OsClientCtrl - used to communicate with the oculus sonar
+
+OsClientCtrl::OsClientCtrl(std::string const& ip_addr, std::string const& net_mask)
+{
+  m_hostname = QString::fromStdString(ip_addr);
+  m_mask = QString::fromStdString(net_mask);
+
+  // Link back this client to the reader thread
+  m_readData.m_pClient = this;
+
+  m_received = false;
+
+}
 
 OsClientCtrl::~OsClientCtrl()
 {
