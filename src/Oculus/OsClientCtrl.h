@@ -61,6 +61,7 @@ public:
 
   bool					  m_simple;
   sonar_oculus_m750d::ImageAndRange getImageAndRange();
+  sonar_oculus_m750d::SonarData getSonarData();
 };
 
 

@@ -705,3 +705,38 @@ sonar_oculus_m750d::ImageAndRange OsBufferEntry::getImageAndRange()
   }
   return image_and_range;
 }
+// -----------------------------------------------------------------------------
+sonar_oculus_m750d::SonarData OsBufferEntry::getSonarData()
+{
+  sonar_oculus_m750d::SonarData sonar_data;
+  if (m_simple)
+  {
+    if (m_version == 2)
+    {
+      sonar_data.beam_count = m_rfm2.nBeams;
+      sonar_data.data_size = m_rfm2.imageSize;
+      sonar_data.bin_count = m_rfm2.nRanges;
+      sonar_data.range = sonar_data.bin_count * m_rfm2.rangeResolution;
+      sonar_data.speed_of_sound = m_rfm2.speedOfSoundUsed;
+    }
+    else{
+      sonar_data.beam_count = m_rfm.nBeams;
+      sonar_data.data_size = m_rfm.imageSize;
+      sonar_data.bin_count = m_rfm.nRanges;
+      sonar_data.range = sonar_data.bin_count * m_rfm.rangeResolution;
+      sonar_data.speed_of_sound = m_rfm.speedOfSoundUsed;
+    }
+  }
+  else{
+      sonar_data.beam_count = m_rff.ping.nBeams;
+      sonar_data.data_size = m_rff.ping_params.imageSize;
+      sonar_data.bin_count = m_rff.ping_params.nRangeLinesBfm;
+      sonar_data.range = m_rff.ping.range;
+      // sonar_data.speed_of_sound
+  }
+  sonar_data.data = new uchar[sonar_data.data_size];
+  memcpy(sonar_data.data, m_pImage, sonar_data.data_size * sizeof(uchar));
+  sonar_data.bearings = new short[sonar_data.beam_count];
+  memcpy(sonar_data.bearings, m_pBrgs, sonar_data.beam_count * sizeof(short));
+  return sonar_data;
+}
