@@ -1,14 +1,7 @@
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef SONAR_DATA_HPP
+#define SONAR_DATA_HPP
 
 namespace sonar_oculus_m750d {
-    struct ImageAndRange {
-        uchar* data;
-        size_t data_size;
-        size_t height;
-        size_t width;
-        double range;
-    };
     struct SonarData
     {
         short* bearings;

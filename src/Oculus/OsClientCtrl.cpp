@@ -37,6 +37,7 @@ OsBufferEntry::OsBufferEntry()
 
   m_pRaw    = nullptr;
   m_rawSize = 0;
+  m_has_new_image = false;
 
   memset(&m_rfm, 0, sizeof(OculusSimplePingResult));
 }
@@ -135,6 +136,7 @@ void OsBufferEntry::ProcessRaw(char* pData)
 
 				if (m_pImage)
 				  memcpy(m_pImage, pData + imageOffset, imageSize);
+        m_has_new_image = true;
 
 				// Copy the bearing table
 				m_pBrgs = (short*) realloc(m_pBrgs, beams * sizeof(short));
@@ -162,6 +164,7 @@ void OsBufferEntry::ProcessRaw(char* pData)
 
 				  if (m_pImage)
 					memcpy(m_pImage, pData + m_rff.ping_params.imageOffset, m_rff.ping_params.imageSize);
+          m_has_new_image = true;
 
 				  // Copy the bearing table
 				  m_pBrgs = (short*) realloc(m_pBrgs, m_rff.ping.nBeams * sizeof(short));
@@ -327,6 +330,68 @@ void OsReadThread::ProcessPayload(char* pData, quint64 nData)
   //JGS20170115 ignore dummy messages
   else if (pOmh->msgId != messageDummy )
     qDebug() << "Unrecognised message ID:" + QString::number(pOmh->msgId);
+}
+
+void OsReadThread::socketConnect()
+{
+    qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
+    if (!m_pClient) {
+        return;
+    }
+
+    m_pSocket = new QTcpSocket;
+    m_pSocket->connectToHost(m_hostname, m_port);
+
+    if (!m_pSocket->waitForConnected(2000)) {
+        QString error = "Connection failed for: " + m_hostname + " :" +
+                        QString::number(m_port) + " Reason:" + m_pSocket->errorString();
+
+        SetActive(false);
+        emit NotifyConnectionFailed(error);
+
+        delete m_pSocket;
+        m_pSocket = nullptr;
+
+        return;
+    }
+
+    m_pSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+    m_pSocket->setSocketOption(QAbstractSocket::KeepAliveOption, true);
+    m_pSocket->setReadBufferSize(200000);
+}
+
+void OsReadThread::singleRun()
+{
+  m_sending.lock();
+  if (m_pToSend && m_nToSend > 0)
+  {
+    m_pSocket->write(m_pToSend, m_nToSend);
+
+    delete m_pToSend;
+    m_pToSend = nullptr;
+    m_nToSend = 0;
+  }
+  m_sending.unlock();
+
+  m_osBuffer->m_has_new_image = false;
+
+  // Check for any data in the rx buffer
+  qint64 bytesAvailable = m_pSocket->bytesAvailable();
+  if (bytesAvailable > 0)
+  {
+    // Make sure there is enough room in the buffer - expand if required
+    if (m_nRxIn + bytesAvailable > m_nRxMax) {
+        m_nRxMax = m_nRxIn + bytesAvailable;
+        m_pRxBuffer = (char*)realloc(m_pRxBuffer, m_nRxMax);
+    }
+
+    // Read the new data into the buffer at the inject point
+    unsigned bytesRead = m_pSocket->read((char*)&m_pRxBuffer[m_nRxIn], bytesAvailable);
+    m_nRxIn += bytesRead;
+
+    // Test the Rx Buffer for new messages
+    ProcessRxBuffer();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -680,30 +745,9 @@ void OsClientCtrl::WriteUserConfig(uint32_t ipAddr, uint32_t ipMask, bool dhcpEn
 	}
 }
 // -----------------------------------------------------------------------------
-sonar_oculus_m750d::ImageAndRange OsBufferEntry::getImageAndRange()
+bool OsClientCtrl::hasNewImage()
 {
-  sonar_oculus_m750d::ImageAndRange image_and_range;
-  image_and_range.data = m_pImage;
-  if (m_simple)
-  {
-    if (m_version == 2)
-    {
-      image_and_range.width = m_rfm2.nBeams;
-      image_and_range.height = m_rfm2.nRanges;
-      image_and_range.range = image_and_range.height * m_rfm2.rangeResolution;
-    }
-    else{
-      image_and_range.width = m_rfm.nBeams;
-      image_and_range.height = m_rfm.nRanges;
-      image_and_range.range = image_and_range.height * m_rfm.rangeResolution;
-    }
-  }
-  else{
-      image_and_range.width = m_rff.ping.nBeams;
-      image_and_range.height = m_rff.ping_params.nRangeLinesBfm;
-      image_and_range.range = m_rff.ping.range;
-  }
-  return image_and_range;
+  return m_readData.m_osBuffer->m_has_new_image;
 }
 // -----------------------------------------------------------------------------
 sonar_oculus_m750d::SonarData OsBufferEntry::getSonarData()

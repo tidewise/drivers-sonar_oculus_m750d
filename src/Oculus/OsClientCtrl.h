@@ -30,7 +30,7 @@
 #include "../Oculus/DataWrapper.h"
 #include "../Oculus/OssDataWrapper.h"
 
-#include "ImageAndRange.hpp"
+#include "SonarData.hpp"
 
 class QTcpSocket;
 
@@ -60,8 +60,8 @@ public:
   quint32                 m_rawSize;     // Size of the raw data record
 
   bool					  m_simple;
-  sonar_oculus_m750d::ImageAndRange getImageAndRange();
   sonar_oculus_m750d::SonarData getSonarData();
+  bool m_has_new_image = false;
 };
 
 
@@ -86,6 +86,8 @@ public:
   void SetActive(bool active);
   void ProcessRxBuffer();
   void ProcessPayload(char* pData, quint64 nData);
+  void socketConnect();
+  void singleRun();
 
 signals:
   void Msg(QString msg);
@@ -176,6 +178,8 @@ public:
   UserConfig  m_config;       // Oculus user configuration
 
   OsReadThread  m_readData; // The worker thread for reading data
+
+  bool hasNewImage();
 
 signals:
   void waitSignal();
