@@ -332,11 +332,11 @@ void OsReadThread::ProcessPayload(char* pData, quint64 nData)
     qDebug() << "Unrecognised message ID:" + QString::number(pOmh->msgId);
 }
 
-void OsReadThread::socketConnect()
+bool OsReadThread::socketConnect()
 {
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
     if (!m_pClient) {
-        return;
+        return false;
     }
 
     m_pSocket = new QTcpSocket;
@@ -352,13 +352,16 @@ void OsReadThread::socketConnect()
         delete m_pSocket;
         m_pSocket = nullptr;
 
-        return;
+        return false;
     }
 
     m_pSocket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     m_pSocket->setSocketOption(QAbstractSocket::KeepAliveOption, true);
     m_pSocket->setReadBufferSize(200000);
+    return true;
 }
+
+// void writeData
 
 void OsReadThread::singleRun()
 {

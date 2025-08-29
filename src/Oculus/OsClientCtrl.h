@@ -86,7 +86,7 @@ public:
   void SetActive(bool active);
   void ProcessRxBuffer();
   void ProcessPayload(char* pData, quint64 nData);
-  void socketConnect();
+  bool socketConnect();
   void singleRun();
 
 signals:
