@@ -9,6 +9,7 @@ namespace sonar_oculus_m750d {
 
     public:
         Driver();
+        int extractPacket(uint8_t const* buffer, size_t buffer_size) const;
     };
 }
 
