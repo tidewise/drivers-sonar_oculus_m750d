@@ -49,7 +49,7 @@ base::samples::Sonar Protocol::parseSonar()
     }
     else {
         // TODO: I didn't find the speed of sound in this message
-        throw std::runtime_error("OculusReturnFireMessage pase is not implemented");
+        throw std::runtime_error("OculusReturnFireMessage parse is not implemented");
         // beam_count = m_return_fire_message.ping.nBeams;
         // bin_count = m_return_fire_message.ping_params.nRangeLinesBfm;
         // range = m_return_fire_message.ping.range;

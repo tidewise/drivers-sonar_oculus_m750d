@@ -31,4 +31,4 @@ namespace sonar_oculus_m750d {
     };
 }
 
-#endif
+#endif // SONAR_OCULUS_M750D_PROTOCOL_HPP
