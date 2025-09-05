@@ -25,115 +25,126 @@ base::Time Protocol::binDuration(double range, double speed_of_sound, int bin_co
 
 base::samples::Sonar Protocol::parseSonar()
 {
-    int beam_count = 0;
-    int bin_count = 0;
-    double range = 0;
-    double speed_of_sound = 0;
-    if (m_simple) {
-        if (m_version == 2) {
-            beam_count = m_simple_ping_result_2.nBeams;
-            bin_count = m_simple_ping_result_2.nRanges;
-            range = bin_count * m_simple_ping_result_2.rangeResolution;
-            speed_of_sound = m_simple_ping_result_2.speedOfSoundUsed;
-        }
-        else {
-            beam_count = m_simple_ping_result.nBeams;
-            bin_count = m_simple_ping_result.nRanges;
-            range = bin_count * m_simple_ping_result.rangeResolution;
-            speed_of_sound = m_simple_ping_result.speedOfSoundUsed;
-        }
-    }
-    else {
-        // TODO: I didn't find the speed of sound in this message
+    if (!m_simple) {
         throw std::runtime_error("OculusReturnFireMessage parse is not implemented");
-        // beam_count = m_return_fire_message.ping.nBeams;
-        // bin_count = m_return_fire_message.ping_params.nRangeLinesBfm;
-        // range = m_return_fire_message.ping.range;
-        // bins_size = m_return_fire_message.ping_params.imageSize;
     }
 
-    auto bins = toBeamFirst(m_image, beam_count, bin_count);
-    auto bin_duration = binDuration(range, speed_of_sound, bin_count);
-    auto beam_width = base::Angle::fromDeg(HORIZONTAL_FOV_DEG / beam_count);
+    auto bin_duration = binDuration(m_sonar_data.range,
+        m_sonar_data.speed_of_sound,
+        m_sonar_data.bin_count);
+    auto beam_width = base::Angle::fromDeg(HORIZONTAL_FOV_DEG / m_sonar_data.beam_count);
     auto beam_height = base::Angle::fromDeg(VERTICAL_FOV_DEG);
-
     base::samples::Sonar sonar(base::Time::now(),
         bin_duration,
-        bin_count,
+        m_sonar_data.bin_count,
         beam_width,
         beam_height,
-        beam_count,
+        m_sonar_data.beam_count,
         false);
+    auto bins =
+        toBeamFirst(m_sonar_data.image, m_sonar_data.beam_count, m_sonar_data.bin_count);
     sonar.bins = bins;
+
+    // TODO
+    // sonar.setRegularBeamBearings(start, interval);
+
     return sonar;
 }
 
 void Protocol::handleBuffer(uint8_t const* buffer, size_t buffer_size)
 {
-    OculusMessageHeader head;
-    memcpy(&head, buffer, sizeof(OculusMessageHeader));
-    switch (head.msgId) {
-        case messageSimplePingResult: {
-            m_simple = true;
-
-            uint32_t imageSize = 0;
-            uint32_t image_offset = 0;
-            uint16_t beams = 0;
-            uint32_t size = 0;
-
-            m_version = head.msgVersion;
-
-            if (m_version == 2) {
-                memcpy(&m_simple_ping_result_2, buffer, sizeof(OculusSimplePingResult2));
-
-                imageSize = m_simple_ping_result_2.imageSize;
-                image_offset = m_simple_ping_result_2.imageOffset;
-                beams = m_simple_ping_result_2.nBeams;
-                size = sizeof(OculusSimplePingResult2);
-            }
-            else {
-                memcpy(&m_simple_ping_result, buffer, sizeof(OculusSimplePingResult));
-
-                imageSize = m_simple_ping_result.imageSize;
-                image_offset = m_simple_ping_result.imageOffset;
-                beams = m_simple_ping_result.nBeams;
-                size = sizeof(OculusSimplePingResult);
-            }
-
-            m_image = (uint8_t*)realloc(m_image, imageSize);
-
-            if (m_image)
-                memcpy(m_image, buffer + image_offset, imageSize);
-
-            m_bearings = (short*)realloc(m_bearings, beams * sizeof(short));
-
-            if (m_bearings) {
-                memcpy(m_bearings, buffer + size, beams * sizeof(short));
-            }
+    OculusMessageHeader header;
+    memcpy(&header, buffer, sizeof(OculusMessageHeader));
+    switch (header.msgId) {
+        case messageSimplePingResult:
+            handleMessageSimplePingResult(buffer, header);
             break;
-        }
-        case messagePingResult: {
-            m_simple = false;
-
-            memcpy(&m_return_fire_message, buffer, sizeof(OculusReturnFireMessage));
-            m_image =
-                (uint8_t*)realloc(m_image, m_return_fire_message.ping_params.imageSize);
-
-            if (m_image) {
-                memcpy(m_image,
-                    buffer + m_return_fire_message.ping_params.imageOffset,
-                    m_return_fire_message.ping_params.imageSize);
-            }
-
-            m_bearings = (short*)realloc(m_bearings,
-                m_return_fire_message.ping.nBeams * sizeof(short));
-
-            if (m_bearings) {
-                memcpy(m_bearings,
-                    buffer + sizeof(OculusReturnFireMessage),
-                    m_return_fire_message.ping.nBeams * sizeof(short));
-            }
+        case messagePingResult:
+            handleMessagePingResult(buffer);
             break;
-        }
+        default:
+            break;
     }
+}
+
+void Protocol::handleMessagePingResult(uint8_t const* buffer)
+{
+    m_simple = false;
+
+    OculusReturnFireMessage return_fire_message;
+    auto msg_size = sizeof(OculusReturnFireMessage);
+    memcpy(&return_fire_message, buffer, msg_size);
+
+    auto ping = return_fire_message.ping;
+    auto ping_params = return_fire_message.ping_params;
+    m_sonar_data.image = (uint8_t*)realloc(m_sonar_data.image, ping_params.imageSize);
+
+    if (m_sonar_data.image) {
+        memcpy(m_sonar_data.image,
+            buffer + ping_params.imageOffset,
+            ping_params.imageSize);
+    }
+
+    m_sonar_data.bearings =
+        (short*)realloc(m_sonar_data.bearings, ping.nBeams * sizeof(short));
+
+    if (m_sonar_data.bearings) {
+        memcpy(m_sonar_data.bearings, buffer + msg_size, ping.nBeams * sizeof(short));
+    }
+
+    m_sonar_data.beam_count = ping.nBeams;
+    m_sonar_data.bin_count = ping_params.nRangeLinesBfm;
+    m_sonar_data.range = ping.range;
+}
+
+void setImage(SonarData& sonar_data, uint32_t image_offset, uint8_t const* buffer)
+{
+    sonar_data.image = (uint8_t*)realloc(sonar_data.image, sonar_data.image_size);
+    if (sonar_data.image) {
+        memcpy(sonar_data.image, buffer + image_offset, sonar_data.image_size);
+    }
+}
+
+void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer)
+{
+    sonar_data.bearings =
+        (short*)realloc(sonar_data.bearings, sonar_data.beam_count * sizeof(short));
+    if (sonar_data.bearings) {
+        memcpy(sonar_data.bearings, buffer + size, sonar_data.beam_count * sizeof(short));
+    }
+}
+
+void Protocol::handleMessageSimplePingResult(uint8_t const* buffer,
+    OculusMessageHeader const& header)
+{
+    m_simple = true;
+
+    uint32_t size = 0;
+    uint32_t image_offset = 0;
+
+    if (header.msgVersion == 2) {
+        OculusSimplePingResult2 result;
+        size = sizeof(OculusSimplePingResult2);
+        memcpy(&result, buffer, size);
+        m_sonar_data.image_size = result.imageSize;
+        image_offset = result.imageOffset;
+        m_sonar_data.beam_count = result.nBeams;
+        m_sonar_data.bin_count = result.nRanges;
+        m_sonar_data.range = m_sonar_data.bin_count * result.rangeResolution;
+        m_sonar_data.speed_of_sound = result.speedOfSoundUsed;
+    }
+    else {
+        OculusSimplePingResult result;
+        size = sizeof(OculusSimplePingResult);
+        memcpy(&result, buffer, size);
+        m_sonar_data.image_size = result.imageSize;
+        image_offset = result.imageOffset;
+        m_sonar_data.beam_count = result.nBeams;
+        m_sonar_data.bin_count = result.nRanges;
+        m_sonar_data.range = m_sonar_data.bin_count * result.rangeResolution;
+        m_sonar_data.speed_of_sound = result.speedOfSoundUsed;
+    }
+
+    setImage(m_sonar_data, image_offset, buffer);
+    setBearings(m_sonar_data, size, buffer);
 }

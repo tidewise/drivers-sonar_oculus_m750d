@@ -10,7 +10,8 @@ Driver::Driver()
     m_protocol = Protocol();
 }
 
-bool isValidHeader(OculusMessageHeader const& header){
+bool isValidHeader(OculusMessageHeader const& header)
+{
     return header.oculusId == OCULUS_CHECK_ID;
 }
 
