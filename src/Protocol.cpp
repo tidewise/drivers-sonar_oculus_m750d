@@ -1,4 +1,3 @@
-#include <base/Float.hpp>
 #include <cstdlib>
 #include <sonar_oculus_m750d/Protocol.hpp>
 #include <string.h>
@@ -29,21 +28,18 @@ base::samples::Sonar Protocol::parseSonar()
     int beam_count = 0;
     int bin_count = 0;
     double range = 0;
-    uint32_t bins_size = 0;
-    double speed_of_sound = base::unknown<double>();
+    double speed_of_sound = 0;
     if (m_simple) {
         if (m_version == 2) {
             beam_count = m_simple_ping_result_2.nBeams;
             bin_count = m_simple_ping_result_2.nRanges;
             range = bin_count * m_simple_ping_result_2.rangeResolution;
-            bins_size = m_simple_ping_result_2.imageSize;
             speed_of_sound = m_simple_ping_result_2.speedOfSoundUsed;
         }
         else {
             beam_count = m_simple_ping_result.nBeams;
             bin_count = m_simple_ping_result.nRanges;
             range = bin_count * m_simple_ping_result.rangeResolution;
-            bins_size = m_simple_ping_result.imageSize;
             speed_of_sound = m_simple_ping_result.speedOfSoundUsed;
         }
     }

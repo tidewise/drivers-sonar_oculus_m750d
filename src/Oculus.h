@@ -28,24 +28,21 @@
 // The test id contained in the oculus header file
 #define OCULUS_CHECK_ID 0x4f53
 
-enum OculusMasterStatusType : uint8_t
-{
+enum OculusMasterStatusType : uint8_t {
     oculusMasterStatusSsblBoot,
     oculusMasterStatusSsblRun,
     oculusMasterStatusMainBoot,
     oculusMasterStatusMainRun,
 };
 
-enum OculusPauseReasonType : uint8_t
-{
+enum OculusPauseReasonType : uint8_t {
     oculusPauseMagSwitch,
     oculusPauseBootFromMain,
     oculusPauseFlashError,
     oculusPauseJtagLoad,
 };
 
-enum OculusTemperatureStatusType : uint8_t
-{
+enum OculusTemperatureStatusType : uint8_t {
     oculusTempGood,
     oculusTempOverheat,
     oculusTempReserved,
@@ -53,15 +50,13 @@ enum OculusTemperatureStatusType : uint8_t
 };
 
 // -----------------------------------------------------------------------------
-enum OculusDeviceType : uint16_t
-{
+enum OculusDeviceType : uint16_t {
     deviceTypeUndefined = 0,
     deviceTypeImagingSonar = 1,
 };
 
 // -----------------------------------------------------------------------------
-enum OculusMessageType : uint16_t
-{
+enum OculusMessageType : uint16_t {
     messageSimpleFire = 0x15,
     messagePingResult = 0x22,
     messageSimplePingResult = 0x23,
@@ -69,19 +64,17 @@ enum OculusMessageType : uint16_t
     messageDummy = 0xff,
 };
 
-enum PingRateType : uint8_t
-{
-    pingRateNormal = 0x00, // 10Hz max ping rate
-    pingRateHigh = 0x01, // 15Hz max ping rate
+enum PingRateType : uint8_t {
+    pingRateNormal = 0x00,  // 10Hz max ping rate
+    pingRateHigh = 0x01,    // 15Hz max ping rate
     pingRateHighest = 0x02, // 40Hz max ping rate
-    pingRateLow = 0x03, // 5Hz max ping rate
-    pingRateLowest = 0x04, // 2Hz max ping rate
+    pingRateLow = 0x03,     // 5Hz max ping rate
+    pingRateLowest = 0x04,  // 2Hz max ping rate
     pingRateStandby = 0x05, // Disable ping
 };
 
 // -----------------------------------------------------------------------------
-enum DataSizeType : uint8_t
-{
+enum DataSizeType : uint8_t {
     dataSize8Bit,
     dataSize16Bit,
     dataSize24Bit,
@@ -89,8 +82,7 @@ enum DataSizeType : uint8_t
 };
 
 // -----------------------------------------------------------------------------
-enum OculusPartNumberType : uint16_t
-{
+enum OculusPartNumberType : uint16_t {
     partNumberUndefined = 0,
 
     partNumberM370s = 1041,
@@ -121,20 +113,18 @@ enum OculusPartNumberType : uint16_t
     partNumberEnd = 0xFFFF
 };
 
-struct OculusMessageHeader
-{
-    uint16_t oculusId; // Fixed ID 0x4f53
+struct OculusMessageHeader {
+    uint16_t oculusId;    // Fixed ID 0x4f53
     uint16_t srcDeviceId; // The device id of the source
     uint16_t dstDeviceId; // The device id of the destination
-    uint16_t msgId; // Message identifier
+    uint16_t msgId;       // Message identifier
     uint16_t msgVersion;
     uint32_t payloadSize; // The size of the payload (header not included)
     uint16_t partNumber;
 };
 
 // -----------------------------------------------------------------------------
-struct OculusSimpleFireMessage
-{
+struct OculusSimpleFireMessage {
     OculusMessageHeader head;
 
     uint8_t masterMode;
@@ -148,8 +138,7 @@ struct OculusSimpleFireMessage
     double salinity;
 };
 
-struct OculusSimpleFireMessage2
-{
+struct OculusSimpleFireMessage2 {
     OculusMessageHeader head;
 
     uint8_t masterMode;
@@ -168,79 +157,74 @@ struct OculusSimpleFireMessage2
 };
 
 // -----------------------------------------------------------------------------
-struct OculusSimplePingResult
-{
+struct OculusSimplePingResult {
     OculusSimpleFireMessage fireMessage;
-    uint32_t pingId; 			/* An incrementing number */
+    uint32_t pingId; /* An incrementing number */
     uint32_t status;
-    double frequency;				/* The acoustic frequency (Hz) */
-    double temperature;				/* The external temperature (deg C) */
-    double pressure;				/* The external pressure (bar) */
+    double frequency;        /* The acoustic frequency (Hz) */
+    double temperature;      /* The external temperature (deg C) */
+    double pressure;         /* The external pressure (bar) */
     double speedOfSoundUsed; /* The actual used speed of sound (m/s). May be
                                 different to the speed of sound set in the fire
                                 message */
     uint32_t pingStartTime;
-    DataSizeType dataSize; 			/* The size of the individual data entries */
-    double rangeResolution;			/* The range in metres corresponding to a single range line */
-    uint16_t nRanges;			/* The number of range lines in the image*/
-    uint16_t nBeams;			/* The number of bearings in the image */
-    uint32_t imageOffset; 		/* The offset in bytes of the image data from the start of the network message */
-    uint32_t imageSize; 		/* The size in bytes of the image data */
-    uint32_t messageSize; 		/* The total size in bytes of the network message */
+    DataSizeType dataSize;  /* The size of the individual data entries */
+    double rangeResolution; /* The range in metres corresponding to a single range line */
+    uint16_t nRanges;       /* The number of range lines in the image*/
+    uint16_t nBeams;        /* The number of bearings in the image */
+    uint32_t imageOffset;   /* The offset in bytes of the image data from the start of the
+                               network message */
+    uint32_t imageSize;     /* The size in bytes of the image data */
+    uint32_t messageSize;   /* The total size in bytes of the network message */
     // *** NOT ADDITIONAL VARIABLES BEYOND THIS POINT ***
-    // There will be an array of bearings (shorts) found at the end of the message structure
-    // Allocated at run time
-    // short bearings[];
-    // The bearings to each of the beams in 0.01 degree resolution
+    // There will be an array of bearings (shorts) found at the end of the message
+    // structure Allocated at run time short bearings[]; The bearings to each of the beams
+    // in 0.01 degree resolution
 };
 
-struct OculusSimplePingResult2
-{
+struct OculusSimplePingResult2 {
     OculusSimpleFireMessage2 fireMessage;
     uint32_t pingId; /* An incrementing number */
     uint32_t status;
-    double frequency; /* The acoustic frequency (Hz) */
-    double temperature; /* The external temperature (deg C) */
-    double pressure; /* The external pressure (bar) */
-    double heading; /* The heading (degrees) */
-    double pitch; /* The pitch (degrees) */
-    double roll; /* The roll (degrees) */
+    double frequency;        /* The acoustic frequency (Hz) */
+    double temperature;      /* The external temperature (deg C) */
+    double pressure;         /* The external pressure (bar) */
+    double heading;          /* The heading (degrees) */
+    double pitch;            /* The pitch (degrees) */
+    double roll;             /* The roll (degrees) */
     double speedOfSoundUsed; /* The actual used speed of sound (m/s) */
-    double pingStartTime; /* In seconds from sonar powerup (to microsecond
-                             resolution) */
-    DataSizeType dataSize; /* The size of the individual data entries */
-    double rangeResolution; /* The range in metres corresponding to a single
-                               range line */
-    uint16_t nRanges; /* The number of range lines in the image*/
-    uint16_t nBeams; /* The number of bearings in the image */
+    double pingStartTime;    /* In seconds from sonar powerup (to microsecond
+                                resolution) */
+    DataSizeType dataSize;   /* The size of the individual data entries */
+    double rangeResolution;  /* The range in metres corresponding to a single
+                                range line */
+    uint16_t nRanges;        /* The number of range lines in the image*/
+    uint16_t nBeams;         /* The number of bearings in the image */
     uint32_t spare0;
     uint32_t spare1;
     uint32_t spare2;
     uint32_t spare3;
-    uint32_t
-        imageOffset; /* The offset in bytes of the image data from the start */
-    uint32_t imageSize; /* The size in bytes of the image data */
+    uint32_t imageOffset; /* The offset in bytes of the image data from the start */
+    uint32_t imageSize;   /* The size in bytes of the image data */
     uint32_t messageSize; /* The total size in bytes of the network message */
     // short bearings[]; /* The brgs of the formed beams in 0.01 degree
     // resolution */
 };
 
 // -----------------------------------------------------------------------------
-struct OculusVersionInfo
-{
+struct OculusVersionInfo {
     uint32_t firmwareVersion0; /* The arm0 firmware version major(8 bits),
                                   minor(8 bits), build (16 bits) */
-    uint32_t firmwareDate0; /* The arm0 firmware date */
+    uint32_t firmwareDate0;    /* The arm0 firmware date */
     uint32_t firmwareVersion1; /* The arm1 firmware version major(8 bits),
                                   minor(8 bits), build (16 bits) */
-    uint32_t firmwareDate1; /* The arm1 firmware date */
+    uint32_t firmwareDate1;    /* The arm1 firmware date */
     uint32_t firmwareVersion2; /* The bitfile version */
-    uint32_t firmwareDate2; /* The bitfile date */
+    uint32_t firmwareDate2;    /* The bitfile date */
 };
 
 // -----------------------------------------------------------------------------
-struct OculusStatusMsg
-{
+struct OculusStatusMsg {
     OculusMessageHeader hdr;
 
     uint32_t deviceId;
@@ -268,20 +252,18 @@ struct OculusStatusMsg
     double pressure;
 };
 
-struct OculusUserConfig
-{
+struct OculusUserConfig {
     uint32_t ipAddr;
     uint32_t ipMask;
     uint32_t dhcpEnable;
 };
 
 struct OculusUserConfigMessage {
-	OculusMessageHeader head;
-	OculusUserConfig config;
+    OculusMessageHeader head;
+    OculusUserConfig config;
 };
 
-struct PingConfig
-{
+struct PingConfig {
     uint8_t b0;
     double d0;
     double range;
@@ -312,27 +294,23 @@ struct PingConfig
     uint16_t u1;
 };
 
-struct s0
-{
+struct s0 {
     uint8_t b0;
     double d0;
     uint16_t u0;
     uint16_t u1;
 };
 
-struct s2
-{
+struct s2 {
     uint8_t b0;
 };
 
-struct s7
-{
+struct s7 {
     uint8_t b0;
     uint8_t b1;
 };
 
-struct s9
-{
+struct s9 {
     int i0;
     int i1;
     int i2;
@@ -341,23 +319,20 @@ struct s9
     int i5;
 };
 
-struct s8
-{
+struct s8 {
     uint8_t b0;
     double d0;
     double d1;
 };
 
-struct s1
-{
+struct s1 {
     uint8_t b0;
     uint16_t u0;
     uint8_t b1;
     double d0;
 };
 
-struct s3
-{
+struct s3 {
     uint8_t b0;
     uint8_t b1;
     uint8_t b2;
@@ -380,8 +355,7 @@ struct s3
     double d1;
 };
 
-struct s4
-{
+struct s4 {
     uint8_t b0;
     uint8_t b1;
     double d0;
@@ -389,8 +363,7 @@ struct s4
     double d2;
 };
 
-struct s5
-{
+struct s5 {
     uint8_t b0;
     uint8_t b1;
     uint16_t u0;
@@ -401,22 +374,19 @@ struct s5
     uint16_t u5;
 };
 
-struct s6
-{
+struct s6 {
     double d0;
     double d1;
 };
 
-struct s10
-{
+struct s10 {
     int i0;
     int i1;
     int i2;
     int i3;
 };
 
-struct s11
-{
+struct s11 {
     double d0;
     double d1;
     double d2;
@@ -424,8 +394,7 @@ struct s11
     double d4;
 };
 
-struct s12
-{
+struct s12 {
     double d0;
     double d1;
     double d2;
@@ -435,8 +404,7 @@ struct s12
     double d6;
 };
 
-struct PingParameters
-{
+struct PingParameters {
     uint32_t u0;
     uint32_t u1;
     double d1;
@@ -475,8 +443,8 @@ struct PingParameters
     uint8_t b2;
     uint32_t imageOffset; /* The offset in bytes of the image data (CHN, CQI,
                            BQI or BMG) from the start of the buffer */
-    uint32_t imageSize; /* The size in bytes of the image data (CHN, CQI, BQI or
-                           BMG) */
+    uint32_t imageSize;   /* The size in bytes of the image data (CHN, CQI, BQI or
+                             BMG) */
     uint32_t messageSize; // The total size in bytes of the network message
     // *** NOT ADDITIONAL VARIABLES BEYOND THIS POINT ***
     // There will be an array of bearings (shorts) found at the end of the
@@ -484,8 +452,7 @@ struct PingParameters
     // each of the beams in 0.01 degree resolution
 };
 
-struct OculusReturnFireMessage
-{
+struct OculusReturnFireMessage {
     OculusMessageHeader head;
     PingConfig ping;
     s0 t0;
@@ -505,8 +472,7 @@ struct OculusReturnFireMessage
 };
 
 // Oculus configuration information
-struct OculusInfo
-{
+struct OculusInfo {
     // Part number for which the info relates to
     OculusPartNumberType partNumber;
     // Has a low-frequency mode
@@ -527,99 +493,73 @@ struct OculusInfo
 // If the part number is not in this list, it defaults to the "partNumberUndefined"
 // configuration
 const OculusInfo OculusSonarInfo[] = {
-    // All undefined sonars and sonars not in this list
+  // All undefined sonars and sonars not in this list
     {partNumberUndefined,
      // Supports LF mode
-     true,
-     // Up to 120m range
-     120,
-     // Supports HF mode
-     true,
-     // Up to 40m range
-     40},
-    // -------------------------------------------------------------------------
-    // M370
-    {partNumberM370s,
+     true, // Up to 120m range
+        120,  // Supports HF mode
+        true, // Up to 40m range
+        40},
+ // -------------------------------------------------------------------------
+  // M370
+    {    partNumberM370s,
      // Supports LF mode
-     true,
-     // Up to 200m range
-     200,
-     // No HF mode
-     false,
-     // Up to 40m range
-     -1},
-    // M370s_Deep
-    {partNumberMD370s,
+     true,  // Up to 200m range
+        200,   // No HF mode
+        false, // Up to 40m range
+        -1},
+ // M370s_Deep
+    {   partNumberMD370s,
      // Supports LF mode
-     true,
-     // Up to 200m range
-     200,
-     // No HF mode
-     false,
-     -1},
-    // -------------------------------------------------------------------------
-    // C550d
-    {partNumberC550d,
+     true, // Up to 200m range
+        200,  // No HF mode
+        false, -1},
+ // -------------------------------------------------------------------------
+  // C550d
+    {    partNumberC550d,
      // Supports LF mode
-     true,
-     // Up to 100m range
-     100,
-     // Supports HF mode
-     true,
-     // Up to 30m range
-     30},
-    // -------------------------------------------------------------------------
-    // M750d
-    {partNumberM750d,
+     true, // Up to 100m range
+        100,  // Supports HF mode
+        true, // Up to 30m range
+        30},
+ // -------------------------------------------------------------------------
+  // M750d
+    {    partNumberM750d,
      // Supports LF mode
-     true,
-     // Up to 120m range
-     120,
-     // Supports HF mode
-     true,
-     // Up to 40m range
-     40},
-    {partNumberMD750d,
+     true, // Up to 120m range
+        120,  // Supports HF mode
+        true, // Up to 40m range
+        40},
+    {   partNumberMD750d,
      // Supports LF mode
-     true,
-     // Up to 120m range
-     120,
-     // Supports HF mode
-     true,
-     // Up to 40m range
-     40},
-    // -------------------------------------------------------------------------
-    // M1200d
-    {partNumberM1200d,
+     true, // Up to 120m range
+        120,  // Supports HF mode
+        true, // Up to 40m range
+        40},
+ // -------------------------------------------------------------------------
+  // M1200d
+    {   partNumberM1200d,
      // Supports LF mode
-     true,
-     // Up to 40m range
-     40,
-     // Supports HF mode
-     true,
-     // Up to 10m range
-     10},
-    {partNumberMD1200d,
+     true, // Up to 40m range
+        40,   // Supports HF mode
+        true, // Up to 10m range
+        10},
+    {  partNumberMD1200d,
      // Supports LF mode
-     true,
-     // Up to 40m range
-     40,
-     // Supports HF mode
-     true,
-     // Up to 10m range
-     10},
-    // -------------------------------------------------------------------------
-    // M3000d
-    {partNumberM3000d,
+     true, // Up to 40m range
+        40,   // Supports HF mode
+        true, // Up to 10m range
+        10},
+ // -------------------------------------------------------------------------
+  // M3000d
+    {   partNumberM3000d,
      // Supports LF mode
-     true,
-     // Up to 30m range
-     30,
-     // Supports HF mode
-     true,
-     // Up to 5m range
-     5},
-    // End of the list
-    {partNumberEnd}};
+     true, // Up to 30m range
+        30,   // Supports HF mode
+        true, // Up to 5m range
+        5},
+ // End of the list
+    {      partNumberEnd }
+};
 
 #endif // OCULUS_H
