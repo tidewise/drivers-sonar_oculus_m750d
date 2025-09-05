@@ -1,6 +1,7 @@
 #ifndef SONAR_OCULUS_M750D_DRIVER_HPP
 #define SONAR_OCULUS_M750D_DRIVER_HPP
 
+#include "M750DConfiguration.hpp"
 #include "Protocol.hpp"
 #include <base/samples/Sonar.hpp>
 #include <iodrivers_base/Driver.hpp>
@@ -14,14 +15,7 @@ namespace sonar_oculus_m750d {
 
         Driver();
         base::samples::Sonar processOne();
-        void fireSonar(int mode,
-            double range,
-            double gain,
-            double speed_of_sound,
-            double salinity,
-            bool gain_assist,
-            uint8_t gamma,
-            uint8_t net_speed_limit);
+        void fireSonar(M750DConfiguration const& configuration);
         Protocol m_protocol;
 
     private:

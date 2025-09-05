@@ -10,21 +10,27 @@ Driver::Driver()
     m_protocol = Protocol();
 }
 
+bool isValidHeader(OculusMessageHeader const& header){
+    return header.oculusId == OCULUS_CHECK_ID;
+}
+
 int Driver::extractPacket(uint8_t const* buffer, size_t buffer_size) const
 {
-    if (buffer_size < sizeof(OculusMessageHeader)) {
+    auto header_size = sizeof(OculusMessageHeader);
+
+    if (buffer_size < header_size) {
         // Not enough data for a header — wait for more
         return 0;
     }
 
     OculusMessageHeader header;
-    memcpy(&header, buffer, sizeof(OculusMessageHeader));
-    if (header.oculusId != OCULUS_CHECK_ID) {
-        // Invalid data in the header - // discard first byte
+    memcpy(&header, buffer, header_size);
+    if (!isValidHeader(header)) {
+        // discard first byte
         return -1;
     }
 
-    size_t packet_size = sizeof(OculusMessageHeader) + header.payloadSize;
+    size_t packet_size = header_size + header.payloadSize;
     if (buffer_size >= packet_size) {
         // Packet starting at zero is valid
         return packet_size;
@@ -42,27 +48,13 @@ base::samples::Sonar Driver::processOne()
     return sonar;
 }
 
-void Driver::fireSonar(int mode,
-    double range,
-    double gain,
-    double speed_of_sound,
-    double salinity,
-    bool gain_assist,
-    uint8_t gamma,
-    uint8_t net_speed_limit)
+uint8_t setFlags(bool gain_assist)
 {
-    OculusSimpleFireMessage simple_fire_message;
-    memset(&simple_fire_message, 0, sizeof(OculusSimpleFireMessage));
-    simple_fire_message.head.msgId = messageSimpleFire;
-    simple_fire_message.head.srcDeviceId = 0;
-    simple_fire_message.head.dstDeviceId = 0;
-    simple_fire_message.head.oculusId = 0x4f53;
-
     // Range in metres
     uint8_t flags = 0x01;
 
     if (gain_assist) {
-        // flagsGainAssist
+        // Enable gain assist
         flags |= 0x10;
     }
 
@@ -72,15 +64,27 @@ void Driver::fireSonar(int mode,
     // Enable 512 beams
     flags |= 0x40;
 
+    return flags;
+}
+
+void Driver::fireSonar(M750DConfiguration const& config)
+{
+    OculusSimpleFireMessage simple_fire_message;
+    memset(&simple_fire_message, 0, sizeof(OculusSimpleFireMessage));
+    simple_fire_message.head.msgId = messageSimpleFire;
+    simple_fire_message.head.srcDeviceId = 0;
+    simple_fire_message.head.dstDeviceId = 0;
+    simple_fire_message.head.oculusId = 0x4f53;
+    uint8_t flags = setFlags(config.gain_assist);
     simple_fire_message.flags = flags;
-    simple_fire_message.gammaCorrection = gamma;
+    simple_fire_message.gammaCorrection = config.gamma;
     simple_fire_message.pingRate = pingRateHigh;
-    simple_fire_message.networkSpeed = net_speed_limit;
-    simple_fire_message.masterMode = mode;
-    simple_fire_message.range = range;
-    simple_fire_message.gainPercent = gain;
-    simple_fire_message.speedOfSound = speed_of_sound;
-    simple_fire_message.salinity = salinity;
+    simple_fire_message.networkSpeed = config.net_speed_limit;
+    simple_fire_message.masterMode = config.mode;
+    simple_fire_message.range = config.range;
+    simple_fire_message.gainPercent = config.gain;
+    simple_fire_message.speedOfSound = config.speed_of_sound;
+    simple_fire_message.salinity = config.salinity;
 
     writePacket((uint8_t*)&simple_fire_message, sizeof(OculusSimpleFireMessage));
 }
