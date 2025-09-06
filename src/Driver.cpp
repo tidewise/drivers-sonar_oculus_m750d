@@ -43,30 +43,13 @@ int Driver::extractPacket(uint8_t const* buffer, size_t buffer_size) const
 
 base::samples::Sonar Driver::processOne()
 {
-    int packet_size = readPacket(m_read_buffer, INTERNAL_BUFFER_SIZE);
-    m_protocol.handleBuffer(m_read_buffer, packet_size);
+    readPacket(m_read_buffer, INTERNAL_BUFFER_SIZE);
+    m_protocol.handleBuffer(m_read_buffer);
     auto sonar = m_protocol.parseSonar();
     return sonar;
 }
 
-uint8_t setFlags(bool gain_assist)
-{
-    // Range in metres
-    uint8_t flags = 0x01;
-
-    if (gain_assist) {
-        // Enable gain assist
-        flags |= 0x10;
-    }
-
-    // Oculus will output simple fire returns
-    flags |= 0x08;
-
-    // Enable 512 beams
-    flags |= 0x40;
-
-    return flags;
-}
+uint8_t setFlags(bool gain_assist);
 
 void Driver::fireSonar(M750DConfiguration const& config)
 {
@@ -88,4 +71,23 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.salinity = config.salinity;
 
     writePacket((uint8_t*)&simple_fire_message, sizeof(OculusSimpleFireMessage));
+}
+
+uint8_t setFlags(bool gain_assist)
+{
+    // Range in metres
+    uint8_t flags = 0x01;
+
+    if (gain_assist) {
+        // Enable gain assist
+        flags |= 0x10;
+    }
+
+    // Oculus will output simple fire returns
+    flags |= 0x08;
+
+    // Enable 512 beams
+    flags |= 0x40;
+
+    return flags;
 }

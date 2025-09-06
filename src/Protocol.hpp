@@ -9,13 +9,19 @@
 namespace sonar_oculus_m750d {
     class Protocol {
     public:
-        void handleBuffer(uint8_t const* buffer, size_t buffer_size);
+        void handleBuffer(uint8_t const* buffer);
         base::samples::Sonar parseSonar();
-
-        static std::vector<float> toBeamFirst(uint8_t* bin_first,
+        /**
+         * @brief Rearrange the sonar data in beam major order
+         * 
+         * Takes an sonar data in bin major order, this is
+         * [idx = bin * beam_count + beam], and returns an vector of data arranged
+         * in beam major order, this is [idx = beam * bin_count + bin]
+         * 
+         */
+        static std::vector<float> toBeamMajor(uint8_t* bin_first,
             uint16_t beam_count,
             uint16_t bin_count);
-
         static base::Time binDuration(double range, double speed_of_sound, int bin_count);
 
     private:
@@ -23,8 +29,8 @@ namespace sonar_oculus_m750d {
         void handleMessageSimplePingResult(uint8_t const* buffer,
             OculusMessageHeader const& header);
 
-        SonarData m_sonar_data;
-        bool m_simple = false;
+        SonarData m_data;
+        bool m_simple_ping_result = false;
 
         static constexpr double HORIZONTAL_FOV_DEG = 130;
         static constexpr double VERTICAL_FOV_DEG = 20;
