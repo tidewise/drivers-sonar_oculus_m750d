@@ -15,6 +15,12 @@ namespace sonar_oculus_m750d {
 
         Driver(base::Angle const& beam_width, base::Angle const& beam_height);
         std::optional<base::samples::Sonar> processOne();
+        /**
+         * @brief It calls a sonar reconfiguration
+         *
+         * This is also needed to keep the sonar alive
+         *
+         */
         void fireSonar(M750DConfiguration const& configuration);
         Protocol m_protocol;
 
