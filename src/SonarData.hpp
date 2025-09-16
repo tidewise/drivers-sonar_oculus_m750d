@@ -3,6 +3,7 @@
 
 #include <base/Float.hpp>
 #include <cstdint>
+#include <vector>
 
 namespace sonar_oculus_m750d {
     struct SonarData {
@@ -12,8 +13,8 @@ namespace sonar_oculus_m750d {
         uint16_t bin_count = 0;
         double range = base::unknown<double>();
         double speed_of_sound = base::unknown<double>();
-        uint8_t* image;
-        short* bearings;
+        std::vector<uint8_t> image;
+        std::vector<short> bearings;
     };
 }
 

@@ -18,7 +18,7 @@ namespace sonar_oculus_m750d {
          * in beam major order, this is [idx = beam * bin_count + bin]
          *
          */
-        static std::vector<float> toBeamMajor(uint8_t* bin_first,
+        static std::vector<float> toBeamMajor(std::vector<uint8_t> const& bin_first,
             uint16_t beam_count,
             uint16_t bin_count);
         static base::Time binDuration(double range, double speed_of_sound, int bin_count);

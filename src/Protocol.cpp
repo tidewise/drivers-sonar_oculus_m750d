@@ -60,22 +60,20 @@ void Protocol::handleMessageSimplePingResult(uint8_t const* buffer, uint16_t ver
 
 void setImage(SonarData& sonar_data, uint32_t image_offset, uint8_t const* buffer)
 {
-    sonar_data.image = (uint8_t*)realloc(sonar_data.image, sonar_data.image_size);
-    if (sonar_data.image) {
-        memcpy(sonar_data.image, buffer + image_offset, sonar_data.image_size);
-    }
+    sonar_data.image.resize(sonar_data.image_size);
+    std::memcpy(sonar_data.image.data(), buffer + image_offset, sonar_data.image_size);
 }
 
 void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer)
 {
-    sonar_data.bearings =
-        (short*)realloc(sonar_data.bearings, sonar_data.beam_count * sizeof(short));
-    if (sonar_data.bearings) {
-        memcpy(sonar_data.bearings, buffer + size, sonar_data.beam_count * sizeof(short));
-    }
+    sonar_data.bearings.resize(sonar_data.beam_count);
+    std::memcpy(sonar_data.bearings.data(),
+        buffer + size,
+        sonar_data.beam_count * sizeof(short));
 }
 
-std::vector<base::Angle> getBearingsAngles(short* bearings, uint16_t beam_count);
+std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
+    uint16_t beam_count);
 
 base::samples::Sonar Protocol::parseSonar()
 {
@@ -106,7 +104,7 @@ base::Time Protocol::binDuration(double range, double speed_of_sound, int bin_co
     return base::Time::fromSeconds(range / (speed_of_sound * bin_count));
 }
 
-std::vector<float> Protocol::toBeamMajor(uint8_t* bin_first,
+std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
     uint16_t beam_count,
     uint16_t bin_count)
 {
@@ -120,7 +118,8 @@ std::vector<float> Protocol::toBeamMajor(uint8_t* bin_first,
     return beam_first;
 }
 
-std::vector<base::Angle> getBearingsAngles(short* bearings, uint16_t beam_count)
+std::vector<base::Angle> getBearingsAngles(std::vector<short> bearings,
+    uint16_t beam_count)
 {
     std::vector<base::Angle> bearings_angles;
     for (size_t i = 0; i < beam_count; i++) {
