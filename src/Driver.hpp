@@ -14,7 +14,7 @@ namespace sonar_oculus_m750d {
         static const int INTERNAL_BUFFER_SIZE = 200000;
 
         Driver(base::Angle const& beam_width, base::Angle const& beam_height);
-        base::samples::Sonar processOne();
+        std::optional<base::samples::Sonar> processOne();
         void fireSonar(M750DConfiguration const& configuration);
         Protocol m_protocol;
 

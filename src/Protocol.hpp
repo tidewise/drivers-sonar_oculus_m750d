@@ -8,7 +8,7 @@
 namespace sonar_oculus_m750d {
     class Protocol {
     public:
-        void handleBuffer(uint8_t const* buffer);
+        bool handleBuffer(uint8_t const* buffer);
         base::samples::Sonar parseSonar(base::Angle const& beam_width,
             base::Angle const& beam_height);
         /**

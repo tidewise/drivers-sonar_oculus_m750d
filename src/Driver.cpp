@@ -43,12 +43,14 @@ int Driver::extractPacket(uint8_t const* buffer, size_t buffer_size) const
     return 0;
 }
 
-base::samples::Sonar Driver::processOne()
+std::optional<base::samples::Sonar> Driver::processOne()
 {
     readPacket(m_read_buffer, INTERNAL_BUFFER_SIZE);
-    m_protocol.handleBuffer(m_read_buffer);
-    auto sonar = m_protocol.parseSonar(m_beam_width, m_beam_height);
-    return sonar;
+    if (m_protocol.handleBuffer(m_read_buffer)) {
+        auto sonar = m_protocol.parseSonar(m_beam_width, m_beam_height);
+        return sonar;
+    }
+    return std::nullopt;
 }
 
 uint8_t setFlags(bool gain_assist);

@@ -5,19 +5,18 @@
 
 using namespace sonar_oculus_m750d;
 
-void Protocol::handleBuffer(uint8_t const* buffer)
+bool Protocol::handleBuffer(uint8_t const* buffer)
 {
     OculusMessageHeader header;
     memcpy(&header, buffer, sizeof(OculusMessageHeader));
     switch (header.msgId) {
         case messageSimplePingResult:
             handleMessageSimplePingResult(buffer, header.msgVersion);
-            break;
+            return true;
         case messagePingResult:
             throw std::runtime_error("messagePingResult handler is not implemented");
-            break;
         default:
-            break;
+            return false;
     }
 }
 
@@ -117,7 +116,7 @@ std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
     return beam_first;
 }
 
-std::vector<base::Angle> getBearingsAngles(std::vector<short> bearings,
+std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
     uint16_t beam_count)
 {
     std::vector<base::Angle> bearings_angles;
