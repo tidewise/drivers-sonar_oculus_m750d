@@ -25,7 +25,6 @@ namespace sonar_oculus_m750d {
         static base::Time binDuration(double range, double speed_of_sound, int bin_count);
 
     private:
-        void handleMessagePingResult(uint8_t const* buffer);
         void handleMessageSimplePingResult(uint8_t const* buffer,
             OculusMessageHeader const& header);
 

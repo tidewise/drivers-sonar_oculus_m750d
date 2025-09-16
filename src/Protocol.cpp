@@ -13,7 +13,7 @@ void Protocol::handleBuffer(uint8_t const* buffer)
             handleMessageSimplePingResult(buffer, header);
             break;
         case messagePingResult:
-            handleMessagePingResult(buffer);
+            throw std::runtime_error("messagePingResult handler is not implemented");
             break;
         default:
             break;
@@ -36,22 +36,22 @@ void Protocol::handleMessageSimplePingResult(uint8_t const* buffer,
         size = sizeof(OculusSimplePingResult2);
         memcpy(&result, buffer, size);
         m_data.image_size = result.imageSize;
-        image_offset = result.imageOffset;
         m_data.beam_count = result.nBeams;
         m_data.bin_count = result.nRanges;
         m_data.range = m_data.bin_count * result.rangeResolution;
         m_data.speed_of_sound = result.speedOfSoundUsed;
+        image_offset = result.imageOffset;
     }
     else {
         OculusSimplePingResult result;
         size = sizeof(OculusSimplePingResult);
         memcpy(&result, buffer, size);
         m_data.image_size = result.imageSize;
-        image_offset = result.imageOffset;
         m_data.beam_count = result.nBeams;
         m_data.bin_count = result.nRanges;
         m_data.range = m_data.bin_count * result.rangeResolution;
         m_data.speed_of_sound = result.speedOfSoundUsed;
+        image_offset = result.imageOffset;
     }
 
     setImage(m_data, image_offset, buffer);
@@ -75,32 +75,6 @@ void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer)
     }
 }
 
-void Protocol::handleMessagePingResult(uint8_t const* buffer)
-{
-    m_simple_ping_result = false;
-
-    OculusReturnFireMessage return_fire_message;
-    auto msg_size = sizeof(OculusReturnFireMessage);
-    memcpy(&return_fire_message, buffer, msg_size);
-
-    auto ping = return_fire_message.ping;
-    auto ping_params = return_fire_message.ping_params;
-    m_data.image = (uint8_t*)realloc(m_data.image, ping_params.imageSize);
-
-    if (m_data.image) {
-        memcpy(m_data.image, buffer + ping_params.imageOffset, ping_params.imageSize);
-    }
-
-    m_data.bearings = (short*)realloc(m_data.bearings, ping.nBeams * sizeof(short));
-
-    if (m_data.bearings) {
-        memcpy(m_data.bearings, buffer + msg_size, ping.nBeams * sizeof(short));
-    }
-
-    m_data.beam_count = ping.nBeams;
-    m_data.bin_count = ping_params.nRangeLinesBfm;
-    m_data.range = ping.range;
-}
 std::vector<base::Angle> getBearingsAngles(short* bearings, uint16_t beam_count);
 
 base::samples::Sonar Protocol::parseSonar()
