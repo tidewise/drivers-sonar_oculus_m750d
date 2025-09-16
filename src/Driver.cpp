@@ -70,7 +70,8 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.speedOfSound = config.speed_of_sound;
     simple_fire_message.salinity = config.salinity;
 
-    writePacket((uint8_t*)&simple_fire_message, sizeof(OculusSimpleFireMessage));
+    writePacket(reinterpret_cast<uint8_t*>(&simple_fire_message),
+        sizeof(OculusSimpleFireMessage));
 }
 
 uint8_t setFlags(bool gain_assist)
