@@ -1,15 +1,16 @@
 #ifndef SONAR_OCULUS_M750D_PROTOCOL_HPP
 #define SONAR_OCULUS_M750D_PROTOCOL_HPP
 
-#include "SonarData.hpp"
 #include <base/samples/Sonar.hpp>
+#include <sonar_oculus_m750d/SonarData.hpp>
 #include <stdio.h>
 
 namespace sonar_oculus_m750d {
     class Protocol {
     public:
         void handleBuffer(uint8_t const* buffer);
-        base::samples::Sonar parseSonar();
+        base::samples::Sonar parseSonar(base::Angle const& beam_width,
+            base::Angle const& beam_height);
         /**
          * @brief Rearrange the sonar data in beam major order
          *
@@ -28,9 +29,6 @@ namespace sonar_oculus_m750d {
 
         SonarData m_data;
         bool m_simple_ping_result = false;
-
-        static constexpr double HORIZONTAL_FOV_DEG = 130;
-        static constexpr double VERTICAL_FOV_DEG = 20;
     };
 }
 

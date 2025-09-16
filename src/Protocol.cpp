@@ -75,7 +75,8 @@ void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer)
 std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
     uint16_t beam_count);
 
-base::samples::Sonar Protocol::parseSonar()
+base::samples::Sonar Protocol::parseSonar(base::Angle const& beam_width,
+    base::Angle const& beam_height)
 {
     if (!m_simple_ping_result) {
         throw std::runtime_error("OculusReturnFireMessage parse is not implemented");
@@ -83,8 +84,6 @@ base::samples::Sonar Protocol::parseSonar()
 
     auto bin_duration =
         binDuration(m_data.range, m_data.speed_of_sound, m_data.bin_count);
-    auto beam_width = base::Angle::fromDeg(HORIZONTAL_FOV_DEG / m_data.beam_count);
-    auto beam_height = base::Angle::fromDeg(VERTICAL_FOV_DEG);
     base::samples::Sonar sonar(base::Time::now(),
         bin_duration,
         m_data.bin_count,

@@ -1,11 +1,11 @@
 #ifndef SONAR_OCULUS_M750D_DRIVER_HPP
 #define SONAR_OCULUS_M750D_DRIVER_HPP
 
-#include "M750DConfiguration.hpp"
-#include "Protocol.hpp"
 #include <base/samples/Sonar.hpp>
 #include <iodrivers_base/Driver.hpp>
 #include <memory>
+#include <sonar_oculus_m750d/M750DConfiguration.hpp>
+#include <sonar_oculus_m750d/Protocol.hpp>
 
 namespace sonar_oculus_m750d {
     class Driver : public iodrivers_base::Driver {
@@ -13,7 +13,7 @@ namespace sonar_oculus_m750d {
     public:
         static const int INTERNAL_BUFFER_SIZE = 200000;
 
-        Driver();
+        Driver(base::Angle const& beam_width, base::Angle const& beam_height);
         base::samples::Sonar processOne();
         void fireSonar(M750DConfiguration const& configuration);
         Protocol m_protocol;
@@ -22,6 +22,8 @@ namespace sonar_oculus_m750d {
         virtual int extractPacket(uint8_t const* buffer, size_t buffer_size) const final;
         uint8_t m_read_buffer[INTERNAL_BUFFER_SIZE];
         uint8_t m_write_buffer[INTERNAL_BUFFER_SIZE];
+        base::Angle m_beam_width;
+        base::Angle m_beam_height;
     };
 }
 
