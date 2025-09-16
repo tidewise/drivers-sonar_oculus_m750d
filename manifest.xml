@@ -3,7 +3,7 @@
   
   </description>
   <author>Mateus Seixas/mateus.seixas@tidewise.io</author>
-  <license>GNU General Public License version 3</license>
+  <license></license>
   <url>http://</url>
   <logo>http://</logo>
   <depend package="base/cmake" />
