@@ -1,7 +1,6 @@
 #ifndef SONAR_OCULUS_M750D_PROTOCOL_HPP
 #define SONAR_OCULUS_M750D_PROTOCOL_HPP
 
-#include "Oculus.h"
 #include "SonarData.hpp"
 #include <base/samples/Sonar.hpp>
 #include <stdio.h>
@@ -13,11 +12,11 @@ namespace sonar_oculus_m750d {
         base::samples::Sonar parseSonar();
         /**
          * @brief Rearrange the sonar data in beam major order
-         * 
+         *
          * Takes an sonar data in bin major order, this is
          * [idx = bin * beam_count + beam], and returns an vector of data arranged
          * in beam major order, this is [idx = beam * bin_count + bin]
-         * 
+         *
          */
         static std::vector<float> toBeamMajor(uint8_t* bin_first,
             uint16_t beam_count,
@@ -25,8 +24,7 @@ namespace sonar_oculus_m750d {
         static base::Time binDuration(double range, double speed_of_sound, int bin_count);
 
     private:
-        void handleMessageSimplePingResult(uint8_t const* buffer,
-            OculusMessageHeader const& header);
+        void handleMessageSimplePingResult(uint8_t const* buffer, uint16_t version);
 
         SonarData m_data;
         bool m_simple_ping_result = false;

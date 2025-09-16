@@ -1,3 +1,4 @@
+#include "Oculus.h"
 #include <cstdlib>
 #include <sonar_oculus_m750d/Protocol.hpp>
 #include <string.h>
@@ -10,7 +11,7 @@ void Protocol::handleBuffer(uint8_t const* buffer)
     memcpy(&header, buffer, sizeof(OculusMessageHeader));
     switch (header.msgId) {
         case messageSimplePingResult:
-            handleMessageSimplePingResult(buffer, header);
+            handleMessageSimplePingResult(buffer, header.msgVersion);
             break;
         case messagePingResult:
             throw std::runtime_error("messagePingResult handler is not implemented");
@@ -23,15 +24,14 @@ void Protocol::handleBuffer(uint8_t const* buffer)
 void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer);
 void setImage(SonarData& sonar_data, uint32_t image_offset, uint8_t const* buffer);
 
-void Protocol::handleMessageSimplePingResult(uint8_t const* buffer,
-    OculusMessageHeader const& header)
+void Protocol::handleMessageSimplePingResult(uint8_t const* buffer, uint16_t version)
 {
     m_simple_ping_result = true;
 
     uint32_t size = 0;
     uint32_t image_offset = 0;
 
-    if (header.msgVersion == 2) {
+    if (version == 2) {
         OculusSimplePingResult2 result;
         size = sizeof(OculusSimplePingResult2);
         memcpy(&result, buffer, size);
