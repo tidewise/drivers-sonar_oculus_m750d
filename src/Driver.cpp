@@ -12,7 +12,7 @@ Driver::Driver(base::Angle const& beam_width, base::Angle const& beam_height)
     m_protocol = Protocol();
 }
 
-bool isValidHeader(OculusMessageHeader const& header)
+static bool isValidHeader(OculusMessageHeader const& header)
 {
     return header.oculusId == OCULUS_CHECK_ID;
 }
@@ -53,7 +53,7 @@ std::optional<base::samples::Sonar> Driver::processOne()
     return std::nullopt;
 }
 
-uint8_t setFlags(bool gain_assist);
+static uint8_t setFlags(bool gain_assist);
 
 void Driver::fireSonar(M750DConfiguration const& config)
 {

@@ -20,8 +20,8 @@ bool Protocol::handleBuffer(uint8_t const* buffer)
     }
 }
 
-void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer);
-void setImage(SonarData& sonar_data, uint32_t image_offset, uint8_t const* buffer);
+static void setBearings(SonarData& sonar_data, uint32_t size, uint8_t const* buffer);
+static void setImage(SonarData& sonar_data, uint32_t image_offset, uint8_t const* buffer);
 
 void Protocol::handleMessageSimplePingResult(uint8_t const* buffer, uint16_t version)
 {

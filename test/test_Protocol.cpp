@@ -12,7 +12,7 @@ struct ProtocolTest : public ::testing::Test {
 
 TEST_F(ProtocolTest, it_changes_the_bins_to_beam_major)
 {
-    uint8_t bins[6] = {1, 2, 3, 4, 5, 6};
+    std::vector<uint8_t> bins = {1, 2, 3, 4, 5, 6};
     uint16_t beam_count = 3;
     uint16_t bin_count = 2;
     auto beam_first = protocol.toBeamMajor(bins, beam_count, bin_count);
