@@ -7,3 +7,6 @@ rock_library(sonar_oculus_m750d
             M750DConfiguration.hpp
             SonarData.hpp
     DEPS_PKGCONFIG base-types iodrivers_base)
+
+rock_executable(sonar_oculus_m750d_ctl Main.cpp
+    DEPS sonar_oculus_m750d)
