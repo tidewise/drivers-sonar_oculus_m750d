@@ -119,7 +119,7 @@ std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
 std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
     uint16_t beam_count)
 {
-    std::vector<base::Angle> bearings_angles;
+    std::vector<base::Angle> bearings_angles(beam_count);
     for (size_t i = 0; i < beam_count; i++) {
         bearings_angles[i] = base::Angle::fromDeg(static_cast<double>(bearings[i]) / 100);
     }
