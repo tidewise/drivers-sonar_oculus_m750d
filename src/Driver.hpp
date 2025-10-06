@@ -11,7 +11,7 @@ namespace sonar_oculus_m750d {
     class Driver : public iodrivers_base::Driver {
 
     public:
-        static const int INTERNAL_BUFFER_SIZE = 200000;
+        static const int INTERNAL_BUFFER_SIZE = 800000;
 
         Driver(base::Angle const& beam_width, base::Angle const& beam_height);
         std::optional<base::samples::Sonar> processOne();
