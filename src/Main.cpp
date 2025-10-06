@@ -30,8 +30,8 @@ int main(int argc, char const* argv[])
     conf.mode = 1;
     conf.gain = 1;
     conf.gain_assist = false;
-    conf.gamma = 0.6;
-    conf.net_speed_limit = 999999;
+    conf.gamma = 1;
+    conf.net_speed_limit = 255;
     conf.range = 120;
     conf.salinity = 35;
     conf.speed_of_sound = 1500;
