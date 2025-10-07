@@ -1,7 +1,12 @@
 rock_library(sonar_oculus_m750d
-    SOURCES Dummy.cpp
-    HEADERS Dummy.hpp)
+    SOURCES Driver.cpp
+            Protocol.cpp
+    HEADERS Driver.hpp
+            Protocol.hpp
+            Oculus.h
+            M750DConfiguration.hpp
+            SonarData.hpp
+    DEPS_PKGCONFIG base-types iodrivers_base)
 
-rock_executable(sonar_oculus_m750d_bin Main.cpp
+rock_executable(sonar_oculus_m750d_ctl Main.cpp
     DEPS sonar_oculus_m750d)
-
