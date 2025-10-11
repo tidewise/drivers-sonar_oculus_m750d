@@ -4,6 +4,7 @@
 #include <base/samples/Sonar.hpp>
 #include <iodrivers_base/Driver.hpp>
 #include <memory>
+#include <optional>
 #include <sonar_oculus_m750d/M750DConfiguration.hpp>
 #include <sonar_oculus_m750d/Protocol.hpp>
 
