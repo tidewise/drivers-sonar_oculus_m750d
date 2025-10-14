@@ -13,7 +13,9 @@ namespace sonar_oculus_m750d {
     public:
         static const int INTERNAL_BUFFER_SIZE = 800000;
 
-        Driver(base::Angle const& beam_width, base::Angle const& beam_height);
+        Driver(base::Angle const& beam_width,
+            base::Angle const& beam_height,
+            bool major_change);
         std::optional<base::samples::Sonar> processOne();
         /**
          * @brief It calls a sonar reconfiguration
@@ -30,6 +32,7 @@ namespace sonar_oculus_m750d {
         uint8_t m_write_buffer[INTERNAL_BUFFER_SIZE];
         base::Angle m_beam_width;
         base::Angle m_beam_height;
+        bool m_major_change = true;
     };
 }
 

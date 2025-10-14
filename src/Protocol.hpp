@@ -10,7 +10,8 @@ namespace sonar_oculus_m750d {
     public:
         bool handleBuffer(uint8_t const* buffer);
         base::samples::Sonar parseSonar(base::Angle const& beam_width,
-            base::Angle const& beam_height);
+            base::Angle const& beam_height,
+            bool major_change);
         /**
          * @brief Rearrange the sonar data in beam major order
          *
@@ -21,7 +22,8 @@ namespace sonar_oculus_m750d {
          */
         static std::vector<float> toBeamMajor(std::vector<uint8_t> const& bin_first,
             uint16_t beam_count,
-            uint16_t bin_count);
+            uint16_t bin_count,
+            bool major_change);
         static base::Time binDuration(double range, double speed_of_sound, int bin_count);
 
     private:

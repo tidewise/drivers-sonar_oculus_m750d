@@ -22,7 +22,8 @@ int main(int argc, char const* argv[])
     string uri(argv[1]);
     base::Angle beam_width = base::Angle::fromDeg(0.25390625);
     base::Angle beam_height = base::Angle::fromDeg(20);
-    Driver driver(beam_width, beam_height);
+    bool major_change = true;
+    Driver driver(beam_width, beam_height, major_change);
     driver.setReadTimeout(base::Time::fromMilliseconds(2000));
     driver.setWriteTimeout(base::Time::fromMilliseconds(1000));
     driver.openURI(uri);

@@ -75,7 +75,8 @@ std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
     uint16_t beam_count);
 
 base::samples::Sonar Protocol::parseSonar(base::Angle const& beam_width,
-    base::Angle const& beam_height)
+    base::Angle const& beam_height,
+    bool major_change)
 {
     if (!m_simple_ping_result) {
         throw std::runtime_error("OculusReturnFireMessage parse is not implemented");
@@ -90,7 +91,8 @@ base::samples::Sonar Protocol::parseSonar(base::Angle const& beam_width,
         beam_height,
         m_data.beam_count,
         false);
-    auto bins = toBeamMajor(m_data.image, m_data.beam_count, m_data.bin_count);
+    auto bins =
+        toBeamMajor(m_data.image, m_data.beam_count, m_data.bin_count, major_change);
     sonar.bins = bins;
     sonar.bearings = getBearingsAngles(m_data.bearings, m_data.beam_count);
 
@@ -104,15 +106,24 @@ base::Time Protocol::binDuration(double range, double speed_of_sound, int bin_co
 
 std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
     uint16_t beam_count,
-    uint16_t bin_count)
+    uint16_t bin_count,
+    bool major_change)
 {
     std::vector<float> beam_first(beam_count * bin_count);
-    for (uint16_t b = 0; b < beam_count; b++) {
-        for (uint16_t r = 0; r < bin_count; r++) {
-            beam_first[b * bin_count + r] =
-                static_cast<float>(bin_first[r * beam_count + b]);
+    if (major_change) {
+        for (uint16_t b = 0; b < beam_count; b++) {
+            for (uint16_t r = 0; r < bin_count; r++) {
+                beam_first[b * bin_count + r] =
+                    static_cast<float>(bin_first[r * beam_count + b]);
+            }
         }
     }
+    else {
+        for (unsigned int i = 0; i < beam_first.size(); i++) {
+            beam_first[i] = static_cast<float>(bin_first[i]);
+        }
+    }
+
     return beam_first;
 }
 

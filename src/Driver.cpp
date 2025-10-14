@@ -4,10 +4,13 @@
 
 using namespace sonar_oculus_m750d;
 
-Driver::Driver(base::Angle const& beam_width, base::Angle const& beam_height)
+Driver::Driver(base::Angle const& beam_width,
+    base::Angle const& beam_height,
+    bool major_change)
     : iodrivers_base::Driver::Driver(INTERNAL_BUFFER_SIZE)
     , m_beam_width(beam_width)
     , m_beam_height(beam_height)
+    , m_major_change(major_change)
 {
     m_protocol = Protocol();
 }
@@ -47,7 +50,7 @@ std::optional<base::samples::Sonar> Driver::processOne()
 {
     readPacket(m_read_buffer, INTERNAL_BUFFER_SIZE);
     if (m_protocol.handleBuffer(m_read_buffer)) {
-        auto sonar = m_protocol.parseSonar(m_beam_width, m_beam_height);
+        auto sonar = m_protocol.parseSonar(m_beam_width, m_beam_height, m_major_change);
         return sonar;
     }
     return std::nullopt;
