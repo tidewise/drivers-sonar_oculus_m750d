@@ -1,3 +1,4 @@
+#include "Protocol.hpp"
 #include "Oculus.h"
 #include <cstdlib>
 #include <sonar_oculus_m750d/Protocol.hpp>
@@ -91,7 +92,8 @@ base::samples::Sonar Protocol::parseSonar(base::Angle const& beam_width,
         m_data.beam_count,
         false);
     auto bins = toBeamMajor(m_data.image, m_data.beam_count, m_data.bin_count);
-    sonar.bins = bins;
+    auto normalized_bins = normalizeBins(bins);
+    sonar.bins = normalized_bins;
     sonar.bearings = getBearingsAngles(m_data.bearings, m_data.beam_count);
 
     return sonar;
@@ -102,18 +104,27 @@ base::Time Protocol::binDuration(double range, double speed_of_sound, int bin_co
     return base::Time::fromSeconds(range / (speed_of_sound * bin_count));
 }
 
-std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
+std::vector<uint8_t> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
     uint16_t beam_count,
     uint16_t bin_count)
 {
-    std::vector<float> beam_first(beam_count * bin_count);
+    std::vector<uint8_t> beam_first(beam_count * bin_count);
     for (uint16_t b = 0; b < beam_count; b++) {
         for (uint16_t r = 0; r < bin_count; r++) {
-            beam_first[b * bin_count + r] =
-                static_cast<float>(bin_first[r * beam_count + b]);
+            beam_first[b * bin_count + r] = bin_first[r * beam_count + b];
         }
     }
     return beam_first;
+}
+
+std::vector<float> Protocol::normalizeBins(std::vector<uint8_t> const& bins)
+{
+    std::vector<float> normalized_bins;
+    normalized_bins.resize(bins.size());
+    for (size_t i = 0; i < bins.size(); i++) {
+        normalized_bins[i] = bins[i] * Protocol::NORMALIZATION_FACTOR;
+    }
+    return normalized_bins;
 }
 
 std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,
