@@ -70,7 +70,7 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.networkSpeed = config.net_speed_limit;
     simple_fire_message.masterMode = config.mode;
     simple_fire_message.range = config.range;
-    simple_fire_message.gainPercent = config.gain;
+    simple_fire_message.gainPercent = config.gain * 100;
     simple_fire_message.speedOfSound = config.speed_of_sound;
     simple_fire_message.salinity = config.salinity;
     simple_fire_message.extFlags = 4;
