@@ -16,7 +16,7 @@ TEST_F(ProtocolTest, it_changes_the_bins_to_beam_major)
     uint16_t beam_count = 3;
     uint16_t bin_count = 2;
     auto beam_first = protocol.toBeamMajor(bins, beam_count, bin_count);
-    std::vector<uint8_t> expected_beam_first = {1, 4, 2, 5, 3, 6};
+    std::vector<float> expected_beam_first = {1, 4, 2, 5, 3, 6};
     ASSERT_EQ(expected_beam_first, beam_first);
 }
 
