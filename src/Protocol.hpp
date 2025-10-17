@@ -8,6 +8,7 @@
 namespace sonar_oculus_m750d {
     class Protocol {
     public:
+        static constexpr double NORMALIZATION_FACTOR = 1.0 / 255;
         bool handleBuffer(uint8_t const* buffer);
         base::samples::Sonar parseSonar(base::Angle const& beam_width,
             base::Angle const& beam_height);
@@ -26,7 +27,7 @@ namespace sonar_oculus_m750d {
 
     private:
         void handleMessageSimplePingResult(uint8_t const* buffer, uint16_t version);
-
+        void normalizeBins(std::vector<float>& bins);
         SonarData m_data;
         bool m_simple_ping_result = false;
     };

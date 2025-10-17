@@ -1,3 +1,4 @@
+#include "Protocol.hpp"
 #include "Oculus.h"
 #include <cstdlib>
 #include <sonar_oculus_m750d/Protocol.hpp>
@@ -90,8 +91,8 @@ base::samples::Sonar Protocol::parseSonar(base::Angle const& beam_width,
         beam_height,
         m_data.beam_count,
         false);
-    auto bins = toBeamMajor(m_data.image, m_data.beam_count, m_data.bin_count);
-    sonar.bins = bins;
+    sonar.bins = toBeamMajor(m_data.image, m_data.beam_count, m_data.bin_count);
+    normalizeBins(sonar.bins);
     sonar.bearings = getBearingsAngles(m_data.bearings, m_data.beam_count);
 
     return sonar;
@@ -114,6 +115,13 @@ std::vector<float> Protocol::toBeamMajor(std::vector<uint8_t> const& bin_first,
         }
     }
     return beam_first;
+}
+
+void Protocol::normalizeBins(std::vector<float>& bins)
+{
+    for (size_t i = 0; i < bins.size(); i++) {
+        bins[i] = bins[i] * Protocol::NORMALIZATION_FACTOR;
+    }
 }
 
 std::vector<base::Angle> getBearingsAngles(std::vector<short> const& bearings,

@@ -57,7 +57,7 @@ static uint8_t setFlags(bool gain_assist);
 
 void Driver::fireSonar(M750DConfiguration const& config)
 {
-    OculusSimpleFireMessage simple_fire_message;
+    OculusSimpleFireMessage2 simple_fire_message;
     memset(&simple_fire_message, 0, sizeof(OculusSimpleFireMessage));
     simple_fire_message.head.msgId = messageSimpleFire;
     simple_fire_message.head.srcDeviceId = 0;
@@ -70,9 +70,17 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.networkSpeed = config.net_speed_limit;
     simple_fire_message.masterMode = config.mode;
     simple_fire_message.range = config.range;
-    simple_fire_message.gainPercent = config.gain;
+    simple_fire_message.gainPercent = config.gain * 100;
     simple_fire_message.speedOfSound = config.speed_of_sound;
     simple_fire_message.salinity = config.salinity;
+    simple_fire_message.extFlags = 4;
+    std::fill(std::begin(simple_fire_message.reserved0),
+        std::end(simple_fire_message.reserved0),
+        0);
+    std::fill(std::begin(simple_fire_message.reserved1),
+        std::end(simple_fire_message.reserved1),
+        0);
+    simple_fire_message.beaconLocatorFrequency = 0;
 
     writePacket(reinterpret_cast<uint8_t*>(&simple_fire_message),
         sizeof(OculusSimpleFireMessage));
