@@ -53,9 +53,9 @@ std::optional<base::samples::Sonar> Driver::processOne()
     return std::nullopt;
 }
 
-static uint8_t setFlags(bool gain_assist);
+static uint8_t setFlags(bool gain_assist, bool network_trigger);
 
-void Driver::fireSonar(M750DConfiguration const& config)
+void Driver::fireSonar(M750DConfiguration const& config, bool network_trigger)
 {
     OculusSimpleFireMessage2 simple_fire_message;
     memset(&simple_fire_message, 0, sizeof(OculusSimpleFireMessage));
@@ -63,7 +63,7 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.head.srcDeviceId = 0;
     simple_fire_message.head.dstDeviceId = 0;
     simple_fire_message.head.oculusId = 0x4f53;
-    uint8_t flags = setFlags(config.gain_assist);
+    uint8_t flags = setFlags(config.gain_assist, network_trigger);
     simple_fire_message.flags = flags;
     simple_fire_message.gammaCorrection = config.gamma;
     simple_fire_message.pingRate = pingRateHigh;
@@ -86,7 +86,7 @@ void Driver::fireSonar(M750DConfiguration const& config)
         sizeof(OculusSimpleFireMessage));
 }
 
-uint8_t setFlags(bool gain_assist)
+uint8_t setFlags(bool gain_assist, bool network_trigger)
 {
     // Range in metres
     uint8_t flags = 0x01;
@@ -101,6 +101,10 @@ uint8_t setFlags(bool gain_assist)
 
     // Enable 512 beams
     flags |= 0x40;
+
+    if (network_trigger) {
+        flags |= 0x80;
+    }
 
     return flags;
 }
