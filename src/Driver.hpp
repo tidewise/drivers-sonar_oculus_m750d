@@ -7,6 +7,7 @@
 #include <optional>
 #include <sonar_oculus_m750d/M750DConfiguration.hpp>
 #include <sonar_oculus_m750d/Protocol.hpp>
+#include <sonar_oculus_m750d/UpdateRate.hpp>
 
 namespace sonar_oculus_m750d {
     class Driver : public iodrivers_base::Driver {
@@ -22,7 +23,14 @@ namespace sonar_oculus_m750d {
          * This is also needed to keep the sonar alive
          *
          */
-        void fireSonar(M750DConfiguration const& configuration);
+
+        /**
+         * @brief It calls a sonar reconfiguration
+         *
+         * @param configuration The sonar paramenters
+         * @param update_rate The sonar update rate
+         */
+        void fireSonar(M750DConfiguration const& configuration, UpdateRate update_rate);
         Protocol m_protocol;
 
     private:

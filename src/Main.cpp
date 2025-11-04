@@ -35,11 +35,10 @@ int main(int argc, char const* argv[])
     conf.range = 120;
     conf.salinity = 35;
     conf.speed_of_sound = 1500;
-    driver.fireSonar(conf);
+    driver.fireSonar(conf, UPDATE_10HZ_MAX);
     while (true) {
         auto sonar = driver.processOne();
         if (sonar) {
-            driver.fireSonar(conf);
             std::cout << "bins size = " << sonar->bins.size() << std::endl;
         }
     }

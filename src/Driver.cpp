@@ -55,7 +55,7 @@ std::optional<base::samples::Sonar> Driver::processOne()
 
 static uint8_t setFlags(bool gain_assist);
 
-void Driver::fireSonar(M750DConfiguration const& config)
+void Driver::fireSonar(M750DConfiguration const& config, UpdateRate update_rate)
 {
     OculusSimpleFireMessage2 simple_fire_message;
     memset(&simple_fire_message, 0, sizeof(OculusSimpleFireMessage));
@@ -64,9 +64,9 @@ void Driver::fireSonar(M750DConfiguration const& config)
     simple_fire_message.head.dstDeviceId = 0;
     simple_fire_message.head.oculusId = 0x4f53;
     uint8_t flags = setFlags(config.gain_assist);
+    simple_fire_message.pingRate = static_cast<PingRateType>(update_rate);
     simple_fire_message.flags = flags;
     simple_fire_message.gammaCorrection = config.gamma;
-    simple_fire_message.pingRate = pingRateHigh;
     simple_fire_message.networkSpeed = config.net_speed_limit;
     simple_fire_message.masterMode = config.mode;
     simple_fire_message.range = config.range;
