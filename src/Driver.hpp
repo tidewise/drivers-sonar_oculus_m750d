@@ -25,13 +25,10 @@ namespace sonar_oculus_m750d {
          */
 
         /**
-         * @brief  It calls a sonar reconfiguration
+         * @brief It calls a sonar reconfiguration
          *
          * @param configuration The sonar paramenters
-         * @param network_trigger Indicates whether the sonar requires an external trigger
-         * to send messages.
-         * true -> Oculus only fires when intructed.
-         * false -> Oculus fires automatically according to PingRate.
+         * @param update_rate The sonar update rate
          */
         void fireSonar(M750DConfiguration const& configuration, UpdateRate update_rate);
         Protocol m_protocol;
