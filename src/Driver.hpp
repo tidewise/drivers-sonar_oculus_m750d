@@ -7,6 +7,7 @@
 #include <optional>
 #include <sonar_oculus_m750d/M750DConfiguration.hpp>
 #include <sonar_oculus_m750d/Protocol.hpp>
+#include <sonar_oculus_m750d/UpdateRate.hpp>
 
 namespace sonar_oculus_m750d {
     class Driver : public iodrivers_base::Driver {
@@ -32,7 +33,7 @@ namespace sonar_oculus_m750d {
          * true -> Oculus only fires when intructed.
          * false -> Oculus fires automatically according to PingRate.
          */
-        void fireSonar(M750DConfiguration const& configuration, bool network_trigger);
+        void fireSonar(M750DConfiguration const& configuration, UpdateRate update_rate);
         Protocol m_protocol;
 
     private:
